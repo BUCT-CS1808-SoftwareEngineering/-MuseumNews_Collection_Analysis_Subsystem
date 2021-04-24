@@ -8,7 +8,7 @@
 import scrapy
 
 
-class SinaproItem(scrapy.Item):
+class NewsItem(scrapy.Item):
     # define the fields for your item here like:
     museum_name = scrapy.Field()
     news_name = scrapy.Field()
