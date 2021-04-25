@@ -34,9 +34,19 @@ class SinaSpider(scrapy.Spider):
 
     def parse_desc(self, response):
         news_name = response.xpath(
-            '//h1[@class="main-title"]/text() | //div[@class="article-header clearfix"]/h1/text() | //h1[@id="artibodyTitle"]/text() | //div[@class="main"]/h1/text() | //div[@class="article-header"]/h1/text()').extract_first()
+            '//h1[@class="main-title"]/text() | //div[@class="article-header clearfix"]/h1/text() | //h1['
+            '@id="artibodyTitle"]/text() | //div[@class="main"]/h1/text() | //div[@class="article-header"]/h1/text('
+            ')').extract_first()
         news_content = response.xpath(
-            '//div[@class="mainBody"]/p/text() | //font[@cms-style="font-L"]/text() | //div[@class="article"]/div/p/text() |//div[@id="article_content"]/div/div/div/text() | //div[@class="article"]/p/text() | //div[@class="article"]/div/div/text() | //font[@cms-style="font-L strong-Bold"]/text() | //div[@id="artibody"]/p/text() | //div[@class="article"]/p/text() | //div[@class="article"]/p/font/text() | //p[@cms-style="font-L"]/font/text() | //div[@id="article"]/p/font/text() | //div[@class="article-body main-body"]/p/text() | //p[@cms-style="font-L"]/text() | //div[@class="article"]/font/font/font/p/font/text() | //div[@class="article"]/font/p/font/text() | //div[@class="article clearfix"]/p/font/text() | //div[@class="img_wrapper"]/font/text() | //div[@class="img_wrapper"]/p/font/text()').extract()
+            '//div[@class="mainBody"]/p/text() | //font[@cms-style="font-L"]/text() | //div['
+            '@class="article"]/div/p/text() |//div[@id="article_content"]/div/div/div/text() | //div['
+            '@class="article"]/p/text() | //div[@class="article"]/div/div/text() | //font[@cms-style="font-L '
+            'strong-Bold"]/text() | //div[@id="artibody"]/p/text() | //div[@class="article"]/p/text() | //div['
+            '@class="article"]/p/font/text() | //p[@cms-style="font-L"]/font/text() | //div['
+            '@id="article"]/p/font/text() | //div[@class="article-body main-body"]/p/text() | //p['
+            '@cms-style="font-L"]/text() | //div[@class="article"]/font/font/font/p/font/text() | //div['
+            '@class="article"]/font/p/font/text() | //div[@class="article clearfix"]/p/font/text() | //div['
+            '@class="img_wrapper"]/font/text() | //div[@class="img_wrapper"]/p/font/text()').extract()
         news_content = ''.join(news_content)
         item = response.meta['item']
         item['news_name'] = news_name
