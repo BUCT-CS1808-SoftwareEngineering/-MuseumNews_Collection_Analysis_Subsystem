@@ -15,4 +15,20 @@ class NewsItem(scrapy.Item):
     news_content = scrapy.Field()
     news_time = scrapy.Field()
     news_source = scrapy.Field()
-    pass
+
+
+class Baidu2OthproItem(scrapy.Item):
+    # define the fields for your item here like:
+    # name = scrapy.Field()
+    title = scrapy.Field()
+    content = scrapy.Field()
+    time = scrapy.Field()
+    source = scrapy.Field()
+
+class BaiduproItem(scrapy.Item):
+    # define the fields for your item here like:
+    # name = scrapy.Field()
+    title = scrapy.Field()
+    content = scrapy.Field()
+    time = scrapy.Field()
+    source = scrapy.Field()
