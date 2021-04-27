@@ -32,3 +32,13 @@ class BaiduproItem(scrapy.Item):
     content = scrapy.Field()
     time = scrapy.Field()
     source = scrapy.Field()
+
+class SpemuseproItem(scrapy.Item):
+    # define the fields for your item here like:
+    # name = scrapy.Field()
+    title = scrapy.Field()
+    content = scrapy.Field()
+    time = scrapy.Field()
+    source = scrapy.Field()
+    muse = scrapy.Field()
+    type = scrapy.Field()
