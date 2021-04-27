@@ -1,6 +1,6 @@
 import scrapy
 from selenium import webdriver
-from msedge.selenium_tools import  EdgeOptions
+from msedge.selenium_tools import EdgeOptions
 from lxml import etree
 
 
@@ -25,9 +25,7 @@ class NetEaseSpider(scrapy.Spider):
             self.news_urls.append(item.xpath('.//div[@class="news_title"]/h3/a/@href')[0])
 
     def update_news_items(self):
-        if self.load_times > 0:
-            self.load_times -= 1
-            self.load_more_btn.click()
+        pass
 
     def parse(self, response):
         pass
