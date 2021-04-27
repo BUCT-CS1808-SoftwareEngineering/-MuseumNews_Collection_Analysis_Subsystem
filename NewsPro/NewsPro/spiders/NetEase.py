@@ -8,8 +8,6 @@ class NetEaseSpider(scrapy.Spider):
     name = "NetEase"
     start_urls = ["https://art.163.com/museum"]
     news_urls = []
-    # 最大刷新新闻次数
-    load_times = 5
 
     def __init__(self):
         options = EdgeOptions()
@@ -17,8 +15,6 @@ class NetEaseSpider(scrapy.Spider):
         # options.add_argument('headless')
         self.browser = webdriver.Chrome(executable_path='./spiders/msedgedriver.exe', options=options)
         self.get_news_items()
-        # while self.load_times:
-        #     self.load_more_btn = self.browser.find_element_by_xpath('//*[@id="ne_wrap"]/body/div[1]/div[3]/div[3]/div[2]/div/div/div/div[1]/a[1]/div[1]/span')
 
     def get_news_items(self):
         self.browser.get(self.start_urls[0])
