@@ -1,21 +1,27 @@
 # -*- coding: utf-8 -*-
 import scrapy
-from NewsPro.items import BaiduproItem
+
+from ..items import BaiduproItem
+
 
 class BaiduSpider(scrapy.Spider):
     name = 'baidu'
     # allowed_domains = ['www.xxx.com']
-    start_urls = ['https://www.baidu.com/s?ie=utf-8&medium=2&rtt=1&bsst=1&rsv_dl=news_t_sk&cl=2&wd=%E5%8D%9A%E7%89%A9%E9%A6%86&tn=news&rsv_bp=1&tfflag=0']
+    start_urls = [
+        'https://www.baidu.com/s?ie=utf-8&medium=2&rtt=1&bsst=1&rsv_dl=news_t_sk&cl=2&wd=%E5%8D%9A%E7%89%A9%E9%A6%86'
+        '&tn=news&rsv_bp=1&tfflag=0']
 
-    url = 'https://www.baidu.com/s?tn=news&rtt=1&bsst=1&cl=2&wd=%E5%8D%9A%E7%89%A9%E9%A6%86&medium=2&x_bfe_rqs=03E80&x_bfe_tjscore=0.100000&tngroupname=organic_news&newVideo=12&rsv_dl=news_b_pn&pn='
+    url = 'https://www.baidu.com/s?tn=news&rtt=1&bsst=1&cl=2&wd=%E5%8D%9A%E7%89%A9%E9%A6%86&medium=2&x_bfe_rqs=03E80' \
+          '&x_bfe_tjscore=0.100000&tngroupname=organic_news&newVideo=12&rsv_dl=news_b_pn&pn= '
     page_num = 1
-    def parse_detail(self,response):
+
+    def parse_detail(self, response):
         item = response.meta['item']
         date = response.xpath('//*[@id="ssr-content"]/div[2]/div[1]/div/div/div[2]/div/span[1]/text()').extract()
         time = response.xpath('//*[@id="ssr-content"]/div[2]/div[1]/div/div/div[2]/div/span[2]/text()').extract()
         time = date[0] + " " + time[0]
         # print(time)
-        item['time']=time
+        item['time'] = time
         content = response.xpath('//*[@id="ssr-content"]/div[2]/div[2]/div[1]/div[1]//text()').extract()
 
         # item['content'] = content
@@ -37,8 +43,8 @@ class BaiduSpider(scrapy.Spider):
 
             yield scrapy.Request(news_url, callback=self.parse_detail, meta={'item': item})
 
-        if self.page_num <=5:
+        if self.page_num <= 5:
             # page_url = format(self.url%self.page_num)
-            page_url = self.url+str(self.page_num*10)
-            self.page_num+=1
+            page_url = self.url + str(self.page_num * 10)
+            self.page_num += 1
             yield scrapy.Request(page_url, callback=self.parse)

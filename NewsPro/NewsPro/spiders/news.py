@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import scrapy
-from NewsPro.items import SpemuseproItem
-from NewsPro.emo_an import snow_res,cnsent_res,bixin_res
-from NewsPro.getsubstr import subStr
+
+from ..emo_an import bixin_res
+from ..getsubstr import subStr
+from ..items import SpemuseproItem
 
 
 class NewsSpider(scrapy.Spider):
@@ -11,7 +12,8 @@ class NewsSpider(scrapy.Spider):
     # muse_list = ['故宫博物馆','中国国家博物馆','上海科技馆','中国科学技术馆']
     # root_url = 'https://www.baidu.com/s?rtt=1&bsst=1&cl=2&tn=news&rsv_dl=ns_pc&word='
     # start_urls = ['https://www.baidu.com/s?ie=utf-8&medium=2&rtt=1&bsst=1&rsv_dl=news_t_sk&cl=2&wd=%E6%95%85%E5%AE%AB%E5%8D%9A%E7%89%A9%E9%A6%86&tn=news&rsv_bp=1&tfflag=0']
-    start_urls = ['https://www.baidu.com/s?ie=utf-8&medium=2&rtt=1&bsst=1&rsv_dl=news_b_pn&cl=2&wd=%E6%95%85%E5%AE%AB%E5%8D%9A%E7%89%A9%E9%A6%86&tn=news&rsv_bp=1&tfflag=0&x_bfe_rqs=03E80&x_bfe_tjscore=0.100000&tngroupname=organic_news&newVideo=12&pn=0']
+    start_urls = [
+        'https://www.baidu.com/s?ie=utf-8&medium=2&rtt=1&bsst=1&rsv_dl=news_b_pn&cl=2&wd=%E6%95%85%E5%AE%AB%E5%8D%9A%E7%89%A9%E9%A6%86&tn=news&rsv_bp=1&tfflag=0&x_bfe_rqs=03E80&x_bfe_tjscore=0.100000&tngroupname=organic_news&newVideo=12&pn=0']
 
     # def get_all_musenews(self):
     muse_list = ['中国国家博物馆', '上海科技馆', '中国科学技术馆']
@@ -20,7 +22,6 @@ class NewsSpider(scrapy.Spider):
     for i in muse_list:
         start_urls.append(root_url.format(i))
     # print(start_urls)
-
 
     page_num = 1
 
@@ -31,16 +32,16 @@ class NewsSpider(scrapy.Spider):
         time = response.xpath('//*[@id="ssr-content"]/div[2]/div[1]/div/div/div[2]/div/span[2]/text()').extract()
         time = date[0] + " " + time[0]
         # print(time)
-        item['time']=time
+        item['time'] = time
         content = response.xpath('//*[@id="ssr-content"]/div[2]/div[2]/div[1]/div[1]//text()').extract()
 
         content = ''.join(content)
         # print(content[0:300])
         # snow_res(content)
         # 调用bixin的predict函数获得情感分析的分数(-1~1)，设置新闻标题的权重为0.6，新闻内容前一部分权重为0.4
-        score = (bixin_res(6*item['title'])+4*bixin_res(content[0:300]))
+        score = (bixin_res(6 * item['title']) + 4 * bixin_res(content[0:300]))
 
-        print(score/10)
+        print(score / 10)
         if score < -0.5:
             type = -1
         elif score > 2:
@@ -95,9 +96,7 @@ class NewsSpider(scrapy.Spider):
             print(url)
             url = subStr(url, 'pn=')
 
-            page_url = url + str(self.page_num*10)
+            page_url = url + str(self.page_num * 10)
             print(page_url)
             self.page_num += 1
             yield scrapy.Request(page_url, callback=self.parse)
-
-

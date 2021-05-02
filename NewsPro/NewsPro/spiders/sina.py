@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import scrapy
-from NewsPro.items import NewsItem
+from ..items import NewsItem
 
 
 class SinaSpider(scrapy.Spider):

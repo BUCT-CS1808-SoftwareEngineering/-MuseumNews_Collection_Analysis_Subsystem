@@ -1,7 +1,7 @@
-from snownlp import SnowNLP
-from cnsenti import Sentiment,Emotion
 from bixin import predict
-import bixin
+from cnsenti import Sentiment, Emotion
+from snownlp import SnowNLP
+
 
 def snow_res(text):
     s = SnowNLP(text)
@@ -16,6 +16,7 @@ def snow_res(text):
         # 积极
         return 1
 
+
 def cnsent_res(text):
     senti = Sentiment()
     res1 = senti.sentiment_count(text)
@@ -24,8 +25,10 @@ def cnsent_res(text):
     res2 = emo.emotion_count(text)
     print(res2)
 
+
 def bixin_res(text):
     return predict(text)
+
 
 text = ["乡村有约共话博物馆助力乡村振兴",
         "上海电影博物馆启动“光影初心 红色征途”主题活动",
