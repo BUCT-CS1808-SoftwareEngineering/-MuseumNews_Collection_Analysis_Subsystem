@@ -1,7 +1,14 @@
 # -*- coding: utf-8 -*-
 import scrapy
-
+from selenium import webdriver
+from msedge.selenium_tools import EdgeOptions
+from lxml import etree
 from ..items import Baidu2OthproItem
+
+options = EdgeOptions()
+options.use_chromium = True
+options.add_argument('headless')
+browser = webdriver.Chrome(executable_path='./spiders/msedgedriver.exe', options=options)
 
 
 class OthSpider(scrapy.Spider):
@@ -17,17 +24,10 @@ class OthSpider(scrapy.Spider):
           '%86&tn=news&rsv_bp=1&tfflag=0&x_bfe_rqs=03E80&x_bfe_tjscore=0.100000&tngroupname=organic_news&newVideo=12' \
           '&pn= '
 
-    def parse_detail_ppxw(self, response):
-        # print(response.body)
-        with open("./a.html", "wb") as fp:
-            fp.write(response.body)
-        item = response.meta['item']
+    def parse_detail_ppxw(self, response, item):
         time = response.xpath('/html/body/div[3]/div[1]/div[1]/div[2]/p[2]/text()').extract()
-        # time = response.xpath('//*[@class="news_about"]//text()').extract()
-        # print(time)
         item['time'] = time
         content = response.xpath('/html/body/div[3]/div[1]/div[1]/div[6]//text()').extract()
-        # item['content'] = content
         yield item
 
     def parse_detail_wyxw1(self, response):
@@ -39,14 +39,6 @@ class OthSpider(scrapy.Spider):
         content = response.xpath('//*[@id="content"]/div[2]//text()').extract()
         # item['content'] = content
         yield item
-
-    # def parse_detail_wyxw2(self,response):
-    #
-    #     item = response.meta['item']
-    #     time = response.xpath('// *[ @ id = "contain"] / div[1] / div[2]/text()').extract_first()
-    #     item['time'] = time
-    #     content = response.xpath('//*[@id="content"]/div[2]//text()').extract()
-    #     yield item
 
     def parse_detail_txxw(self, response):
         item = response.meta['item']
@@ -80,20 +72,21 @@ class OthSpider(scrapy.Spider):
                 # print("yes")
                 item['title'] = title
                 item['source'] = source
-                if source in self.news_site[0]:
+                if source in self.news_site[0]:  # 澎湃新闻
                     # print("ppxw")
-                    yield scrapy.Request(news_url, callback=self.parse_detail_ppxw, meta={'item': item})
-                elif source in self.news_site[1]:
+                    browser.get(news_url)
+                    tree = etree.HTML(browser.page_source)
+                    yield self.parse_detail_ppxw(tree, item)
+                elif source in self.news_site[1]:  # 网易新闻
                     # print("wyxw1")
                     yield scrapy.Request(news_url, callback=self.parse_detail_wyxw1, meta={'item': item})
-                # elif source in self.news_site[1] and 'www.163.com' in news_url:
-                #     print("wyxw2")
-                #     yield scrapy.Request(news_url, callback=self.parse_detail_wyxw2, meta={'item': item})
 
-                elif source in self.news_site[2]:
+                elif source in self.news_site[2]:  # 腾讯新闻
                     # print("txxw")
-                    yield scrapy.Request(news_url, callback=self.parse_detail_txxw, meta={'item': item})
-                elif source in self.news_site[3]:
+                    browser.get(news_url)
+                    tree = etree.HTML(browser.page_source)
+                    yield self.parse_detail_ttxw(tree, item)
+                elif source in self.news_site[3]:  # 凤凰新闻
                     # print("fhxw")
                     yield scrapy.Request(news_url, callback=self.parse_detail_fhxw, meta={'item': item})
         if self.page_num <= 3:
@@ -101,3 +94,5 @@ class OthSpider(scrapy.Spider):
             page_url = self.url + str(self.page_num * 10)
             self.page_num += 1
             yield scrapy.Request(page_url, callback=self.parse)
+
+browser.quit()
