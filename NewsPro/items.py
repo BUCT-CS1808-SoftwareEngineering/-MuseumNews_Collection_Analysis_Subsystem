@@ -7,9 +7,10 @@ import scrapy
 
 
 class NewsItem(scrapy.Item):
-    museum_name = scrapy.Field()  # museum_id ?
+    muse_name = scrapy.Field()  # museum_id ?
     news_name = scrapy.Field()  # 标题
     news_content = scrapy.Field()  # 内容
     news_type = scrapy.Field()  # 类型
     news_time = scrapy.Field()  # 时间
     news_source = scrapy.Field()  # 来源
+    muse_id = scrapy.Field() # 暂时添加一个博物馆id，在muse_list中的位置
