@@ -39,7 +39,7 @@ class BaijiahaoSpider(scrapy.Spider):
             data = json.load(file)
         with open("./spiders/latest_url.json", "w+", encoding="utf-8") as file:
             data['{}'.format(self.name + name)] = '{}'.format(url)  # 修改self.name -> musename,通过传参来实现
-            print(data)
+            # print(data)
             json.dump(data, file, ensure_ascii=False)
 
     def late_url(self, name):   # 修改, self.name -> muse_name
@@ -57,7 +57,7 @@ class BaijiahaoSpider(scrapy.Spider):
         item['news_time'] = Baijiahao_time(time)
         html = response.xpath('//*[@id="ssr-content"]/div[2]/div[2]/div[1]/div[1]')
         # 加上<meta="utf-8">解决网页乱码的问题
-        htmlContent = '<meta="utf-8">' + html[0].extract()
+        htmlContent = '<meta name="referrer" content="no-referrer" charset="UTF-8">\n' + html[0].extract()
         htmlContent = get_processed_html(htmlContent)
         item['news_content'] = htmlContent
         # item['news_content'] = get_processed_html(response.xpath('//*[@id="ssr-content"]/div[2]/div[2]/div[1]/div[1]')[0].extract())
@@ -106,7 +106,7 @@ class BaijiahaoSpider(scrapy.Spider):
                 title = ''.join(title)
                 source = i.xpath('./div/div/div[2]/div/span[1]/text()').extract()
                 source = ''.join(source)
-                print(title, "  ", news_url, "  ", source)
+                print(muse_name, title, "  ", news_url, "  ", source)
                 item['news_name'] = title
                 item['news_source'] = source
                 if muse_name == '故宫博物馆':
