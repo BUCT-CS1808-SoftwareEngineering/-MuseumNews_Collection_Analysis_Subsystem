@@ -15,8 +15,7 @@ NEWSPIDER_MODULE = 'NewsPro.spiders'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 # USER_AGENT = 'NewsPro (+http://www.yourdomain.com)'
-USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 ' \
-             'Safari/537.36 Edg/90.0.818.56 '
+USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
@@ -53,9 +52,15 @@ CONCURRENT_REQUESTS = 32
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
+
+RANDOM_DELAY = 1
 DOWNLOADER_MIDDLEWARES = {
    'NewsPro.middlewares.NewsproDownloaderMiddleware': 543,
+   'NewsPro.middlewares.RandomUserAgentMiddleware': 200,
+   'NewsPro.middlewares.RandomDelayMiddleware': 150,
 }
+
+RANDOM_UA_TYPE = 'random'
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
@@ -66,7 +71,9 @@ EXTENSIONS = {
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'NewsPro.pipelines.NewsproPipeline': 300,
+   'NewsPro.pipelines.NewsproPipeline': 301,
+   'NewsPro.pipelines.mysqlPipeLine': 300,
+
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -89,3 +96,5 @@ ITEM_PIPELINES = {
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+

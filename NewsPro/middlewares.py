@@ -6,6 +6,9 @@
 from scrapy import signals
 from scrapy.http import HtmlResponse
 from time import sleep
+import random
+from fake_useragent import UserAgent
+import logging
 
 
 # useful for handling different item types with a single interface
@@ -132,3 +135,45 @@ class NewsproDownloaderMiddleware:
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+
+
+
+class RandomUserAgentMiddleware(object):
+    '''
+    随机更换User-Agent
+    '''
+    def __init__(self,crawler):
+        super(RandomUserAgentMiddleware, self).__init__()
+        self.ua = UserAgent()
+        self.ua_type = crawler.settings.get('RANDOM_UA_TYPE', 'random')
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(crawler)
+
+    def process_request(self, request, spider):
+
+        def get_ua():
+            return getattr(self.ua, self.ua_type)
+        request.headers.setdefault('User-Agent', get_ua())
+
+
+# 设置随机延时
+class RandomDelayMiddleware(object):
+    def __init__(self, delay):
+        self.delay = delay
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        delay = crawler.spider.settings.get("RANDOM_DELAY", 10)
+        if not isinstance(delay, int):
+            raise ValueError("RANDOM_DELAY need a int")
+        return cls(delay)
+
+    def process_request(self, request, spider):
+        # delay = random.randint(0, self.delay)
+        delay = random.uniform(0, self.delay)
+        delay = float("%.1f" % delay)
+        logging.debug("### random delay: %s s ###" % delay)
+        sleep(delay)

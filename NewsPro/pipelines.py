@@ -8,11 +8,48 @@
 
 class NewsproPipeline(object):
     def process_item(self, item, spider):
-        print(item)
+        print(item['muse_name'],item['muse_id'], item['news_name'], item['news_type'], item['news_source'], item['news_time'])
         return item
 
 
 import pymysql
+# v1.0.0及以上
+from pymysql.converters import escape_string
+
+
+class mysqlPipeLine:
+    conn = None
+    cursor = None
+    def open_spider(self,spider):
+        #连接数据库
+        self.conn = pymysql.Connect(
+            host = '149.129.54.32',
+            user = 'root',
+            port = 3306,
+            password = 'A4W^:s3aW33p',
+            db = 'cs1808test',
+            charset = 'utf8'
+        )
+    def process_item(self,item,spider):
+        #创建cursor对象
+        self.cursor = self.conn.cursor()
+        #错误判断
+        try:
+            # str_to_date(\'%s\',''%%Y-%%m-%%d %%H:%%i:%%s''))
+            #通过excute用sql语句操作数据库
+            self.cursor.execute('insert into `news info table`(muse_ID,news_Name,news_Content,news_type,news_time,news_source)'
+                                'values("%d","%s",\"%s\","%s","%s","%s")'
+                                % (item["muse_id"], item["news_name"], escape_string(item["news_content"]), item["news_type"], item["news_time"], item["news_source"]))
+            self.conn.commit()
+        except Exception as e:
+            print(e)
+            self.conn.rollback()
+
+        return item
+    def close_spider(self,spider):
+        self.cursor.close()
+        self.conn.close()
+
 
 
 # 继承自object

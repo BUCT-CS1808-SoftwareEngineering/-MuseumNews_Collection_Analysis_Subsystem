@@ -18,6 +18,7 @@ class NeteaseSpider(scrapy.Spider):
     news_urls = []
     load_times = 0
     reach_latest = False
+    museum_list = get_list()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -119,6 +120,7 @@ class NeteaseSpider(scrapy.Spider):
         item['muse_name'] = get_museum_name(context)
         print(item['news_name'])
         if item['muse_name'] != "":
+            item['muse_id'] = self.museum_list.index(item['muse_name'])+1
             yield item
         # except:
         #     print("error url is " + response.url)

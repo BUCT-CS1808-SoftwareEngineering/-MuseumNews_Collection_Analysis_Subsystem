@@ -6,7 +6,7 @@ from ..processed_html import get_processed_html
 from ..emo_an import snow_res, cnsent_res, bixin_res
 from ..get_muselist import get_list
 from ..time_process import ppxw_time, wyxw_time, txxw_time, fhxw_tiem, shxw_time
-
+from time import sleep
 
 
 class BaiduSpider(scrapy.Spider):
@@ -26,9 +26,8 @@ class BaiduSpider(scrapy.Spider):
     muse_list = get_list()
     # root_url = 'https://www.baidu.com/s?ie=utf-8&medium=1&rtt=1&bsst=1&rsv_dl=news_b_pn&cl=2&wd={}&tn=news&rsv_bp=1&oq=&rsv_sug3=6&rsv_sug1=1&rsv_sug7=100&rsv_sug2=0&rsv_btype=t&f=8&inputT=1379&rsv_sug4=1379&x_bfe_rqs=03E80&x_bfe_tjscore=0.100000&tngroupname=organic_news&newVideo=12&pn={}'
     root_url = 'https://www.baidu.com/s?tn=news&rtt=4&bsst=1&cl=2&wd={}&medium=1&x_bfe_rqs=03E80&x_bfe_tjscore=0.100000&tngroupname=organic_news&newVideo=12&rsv_dl=news_b_pn&pn={}'
-    for i in muse_list[0:2]:
-        for j in range(0, 5):
-            start_urls.append(root_url.format(i, j*10))
+    for i in muse_list:
+            start_urls.append(root_url.format(i, 0))
     cnt=0
     # for i in start_urls:
     #     print(i)
@@ -43,8 +42,8 @@ class BaiduSpider(scrapy.Spider):
         self.bro = webdriver.Chrome(executable_path='./chromedriver.exe', chrome_options=option)
 
     def get_type(self, content, title):
-        # 调用bixin的predict函数获得情感分析的分数(-1~1)，设置新闻标题的权重为0.6，新闻内容前一部分权重为0.4
-        score = (6*bixin_res(title) + 4*bixin_res(content))
+        # 调用bixin的predict函数获得情感分析的分数(-1~1)，设置新闻标题的权重为0.4，新闻内容前一部分权重为0.6
+        score = (4*bixin_res(title) + 6*bixin_res(content))
         if score < -0.5:
             type = -1
         elif score > 2:
@@ -56,62 +55,62 @@ class BaiduSpider(scrapy.Spider):
 
     def parse_detail_ppxw(self, response):
         print("ppxw.url " + response.url)
-        # try:
+        try:
         # print("ppxw")
-        item = response.meta['item']
-        time = response.xpath('/html/body/div[3]/div[1]/div[1]/div[2]/p[2]/text()').extract_first()
-        # print(time)
-        item['news_time'] = ppxw_time(time)
+            item = response.meta['item']
+            time = response.xpath('/html/body/div[3]/div[1]/div[1]/div[2]/p[2]/text()').extract_first()
+            # print(time)
+            item['news_time'] = ppxw_time(time)
 
-        html = response.xpath('/html/body/div[3]/div[1]/div[1]/div[3]')
-        htmlContent = '<meta name="referrer" content="no-referrer" charset="UTF-8">\n' + html[0].extract()
-        htmlContent = get_processed_html(htmlContent)
-        item['news_content'] = htmlContent
+            html = response.xpath('/html/body/div[3]/div[1]/div[1]/div[3]')
+            htmlContent = '<meta name="referrer" content="no-referrer" charset="UTF-8">\n' + html[0].extract()
+            htmlContent = get_processed_html(htmlContent)
+            item['news_content'] = htmlContent
 
-        content = response.xpath('/html/body/div[3]/div[1]/div[1]/div[3]//text()').extract()
-        content = ''.join(content)[0:300]
-        news_type = self.get_type(content, item['news_name'])
-        item['news_type'] = news_type
+            content = response.xpath('/html/body/div[3]/div[1]/div[1]/div[3]//text()').extract()
+            content = ''.join(content)[0:300]
+            news_type = self.get_type(content, item['news_name'])
+            item['news_type'] = news_type
 
-        # content = response.xpath('/html/body/div[3]/div[1]/div[1]/div[6]')[0].extract()
-        # item['news_content'] = get_processed_html(content)
-        # item['news_type']
-        # item['museum_name']
-        yield item
-        # except:
-        #     pass
+            # content = response.xpath('/html/body/div[3]/div[1]/div[1]/div[6]')[0].extract()
+            # item['news_content'] = get_processed_html(content)
+            # item['news_type']
+            # item['museum_name']
+            yield item
+        except:
+            pass
 
     def parse_detail_wyxw(self, response):
-        # try:
+        try:
             # print("wyxw")
-        item = response.meta['item']
-        time = response.xpath(
-            '//*[@id="container"]/div[1]/div[2]/text() | // *[ @ id = "contain"] / div[1] / div[2]/text()').extract_first()
-        # item['news_time'] = wyxw_time(time)
-        item['news_time'] = time
+            item = response.meta['item']
+            time = response.xpath(
+                '//*[@id="container"]/div[1]/div[2]/text() | // *[ @ id = "contain"] / div[1] / div[2]/text()').extract_first()
+            item['news_time'] = wyxw_time(time)
+            # item['news_time'] = time
 
-        html = response.xpath('//*[@id="content"]/div[2]')
-        htmlContent = '<meta name="referrer" content="no-referrer" charset="UTF-8">\n' + html[0].extract()
-        htmlContent = get_processed_html(htmlContent)
-        item['news_content'] = htmlContent
+            html = response.xpath('//*[@id="content"]/div[2]')
+            htmlContent = '<meta name="referrer" content="no-referrer" charset="UTF-8">\n' + html[0].extract()
+            htmlContent = get_processed_html(htmlContent)
+            item['news_content'] = htmlContent
 
-        content = response.xpath('//*[@id="content"]/div[2]//text()').extract()
-        content = ''.join(content)[0:300]
-        news_type = self.get_type(content, item['news_name'])
-        item['news_type'] = news_type
+            content = response.xpath('//*[@id="content"]/div[2]//text()').extract()
+            content = ''.join(content)[0:300]
+            news_type = self.get_type(content, item['news_name'])
+            item['news_type'] = news_type
 
-        # content = response.xpath('//*[@id="content"]/div[2]')[0].extract()
-        # item['news_content'] = get_processed_html(content)
-        # item['news_type']
-        # item['museum_name']
-        yield item
-        # except:
-        #     pass
+            # content = response.xpath('//*[@id="content"]/div[2]')[0].extract()
+            # item['news_content'] = get_processed_html(content)
+            # item['news_type']
+            # item['museum_name']
+            yield item
+        except:
+            pass
 
     def parse_detail_txxw(self, response):
-        print("txxw")
-        try:
         # print("txxw")
+        try:
+
             item = response.meta['item']
             year = response.xpath('//*[@id="LeftTool"]/div/div[1]/span/text()').extract_first()
             monthday = response.xpath('//*[@id="LeftTool"]/div/div[2]//text()').extract()
@@ -132,7 +131,7 @@ class BaiduSpider(scrapy.Spider):
             content = ''.join(content)[0:300]
             news_type = self.get_type(content, item['news_name'])
             item['news_type'] = news_type
-
+            # print("txxw:", item['muse_name'],item['news_title'])
             # content = response.xpath('/html/body/div[3]/div[1]/div[1]/div[2]')[0].extract()
             # item['news_content'] = get_processed_html(content)
             # item['news_type']
@@ -224,7 +223,8 @@ class BaiduSpider(scrapy.Spider):
         self.initial_url()
         self.save_url(url, muse_name)
         # yield scrapy.Request(response.url, callback=self.parse_next)
-        yield scrapy.Request(response.url, callback=self.parse_next)
+        for i in range(1, 5):
+            yield scrapy.Request(self.root_url.format(muse_name, i*10), callback=self.parse_next)
 
     def parse_next(self, response):
         muse_name = response.xpath('//*[@id="kw"]/@value').extract_first()
@@ -249,6 +249,7 @@ class BaiduSpider(scrapy.Spider):
                     # if '澎湃' in source:
                         self.cnt += 1
                         item['muse_name'] = muse_name
+                        item['muse_id'] = self.muse_list.index(muse_name)+1
                         item['news_name'] = title
                         item['news_source'] = '澎湃新闻'
                         self.selenium_url.append(news_url)
@@ -270,6 +271,7 @@ class BaiduSpider(scrapy.Spider):
                     elif (news_url.startswith('https://new.qq.com/notfound.htm?uri=') or source in self.news_site[2]) and not news_url.startswith('https://xw.qq.com'):
                         self.cnt += 1
                         item['muse_name'] = muse_name
+                        item['muse_id'] = self.muse_list.index(muse_name)+1
                         item['news_name'] = title
                         item['news_source'] = '腾讯新闻'
                         url = news_url.replace('https://new.qq.com/notfound.htm?uri=', '')
@@ -283,6 +285,7 @@ class BaiduSpider(scrapy.Spider):
                     # elif '163' in news_url:
                         self.cnt+=1
                         item['muse_name'] = muse_name
+                        item['muse_id'] = self.muse_list.index(muse_name)+1
                         item['news_name'] = title
                         item['news_source'] = '网易新闻'
                         # self.selenium_url.append(news_url)
@@ -295,6 +298,7 @@ class BaiduSpider(scrapy.Spider):
                         # print(news_url)
                         self.cnt+=1
                         item['muse_name'] = muse_name
+                        item['muse_id'] = self.muse_list.index(muse_name)+1
                         item['news_name'] = title
                         item['news_source'] = '凤凰新闻'
                         # self.selenium_url.append(news_url)
@@ -305,6 +309,7 @@ class BaiduSpider(scrapy.Spider):
                         # print(news_url)
                         self.cnt+=1
                         item['muse_name'] = muse_name
+                        item['muse_id'] = self.muse_list.index(muse_name)+1
                         item['news_name'] = title
                         item['news_source'] = '搜狐新闻'
                         # self.selenium_url.append(news_url)
