@@ -26,7 +26,7 @@ class mysqlPipeLine:
             host = '149.129.54.32',
             user = 'root',
             port = 3306,
-            password = 'A4W^:s3aW33p',
+            password = '',
             db = 'cs1808test',
             charset = 'utf8'
         )
